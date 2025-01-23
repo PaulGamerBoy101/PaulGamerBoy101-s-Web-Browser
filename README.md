@@ -13,6 +13,10 @@
 
 ## Screenshots
 
+![New Tab Page](https://raw.githubusercontent.com/PaulGamerBoy101/PaulGamerBoy101-s-Web-Browser/refs/heads/main/PGB%20Web%20Browser%20NTP%206-5-5.png)
+
+![Two Tabs](https://raw.githubusercontent.com/PaulGamerBoy101/PaulGamerBoy101-s-Web-Browser/refs/heads/main/PGB%20Web%20Browser%202%20Tabs.png)
+
 
 ## How to Run
 
