@@ -36,48 +36,6 @@ class CustomWebEnginePage(QWebEnginePage):
         self.trusted_domains = []  # Domains always allowed
         self.blocked_domains = []  # Domains always blocked
 
-def createWindow(self, _type):
-    """Intercept popup creation."""
-    request_url = self.requestedUrl().toString()
-    domain = QUrl(request_url).host() if request_url else ""
-
-    if not self.popup_blocking_enabled or domain in self.trusted_domains:
-        new_view = QWebEngineView()
-        new_page = CustomWebEnginePage(popup_blocking_enabled=self.popup_blocking_enabled, adblocking_enabled=self.adblocking_enabled)
-        new_view.setPage(new_page)
-        new_view.show()
-        return new_page
-
-    if domain in self.blocked_domains:
-        return None
-
-    msg = QMessageBox()
-    msg.setWindowTitle("Popup Blocked")
-    msg.setText(f"A popup was blocked from {domain}. What would you like to do?")
-    trust_button = msg.addButton("Trust", QMessageBox.AcceptRole)
-    deny_button = msg.addButton("Deny", QMessageBox.RejectRole)
-    ignore_button = msg.addButton("Ignore", QMessageBox.DestructiveRole)
-    msg.setDefaultButton(ignore_button)
-
-    result = msg.exec()
-
-    if msg.clickedButton() == trust_button:
-        if domain not in self.trusted_domains:
-            self.trusted_domains.append(domain)
-        new_view = QWebEngineView()
-        new_page = CustomWebEnginePage(popup_blocking_enabled=self.popup_blocking_enabled, adblocking_enabled=self.adblocking_enabled)
-        new_view.setPage(new_page)
-        new_view.show()
-        return new_page
-
-    elif msg.clickedButton() == deny_button:
-        if domain not in self.blocked_domains:
-            self.blocked_domains.append(domain)
-        return None
-
-    elif msg.clickedButton() == ignore_button:
-        return None
-
 
     def acceptNavigationRequest(self, url, type, is_main_frame):
         """Block ads and manage trusted/blocked domains."""
