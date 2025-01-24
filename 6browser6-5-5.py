@@ -89,7 +89,7 @@ class CustomWebEnginePage(QWebEnginePage):
 class Browser(QMainWindow):
     def __init__(self):
         super().__init__()
-        self.setWindowTitle("Custom Browser with Popup Blocker and Adblocker")
+        self.setWindowTitle("PaulGamerBoy101's Web Browser")
         self.resize(1200, 800)
 
         # Popup blocker and adblocker state
@@ -176,7 +176,7 @@ class Browser(QMainWindow):
             if isinstance(tab, QWebEngineView):
                 tab.page().set_adblocking(state)
 
-    def add_tab(self, url="about:blank"):
+    def add_tab(self, url="https://custom-new-tab-page-12935782.codehs.me/"):
         """Add a new tab."""
         # Ensure url is a string and pass it to QUrl
         if isinstance(url, bool):
