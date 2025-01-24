@@ -178,17 +178,16 @@ class Browser(QMainWindow):
 
     def add_tab(self, url="https://custom-new-tab-page-12935782.codehs.me/"):
         """Add a new tab."""
-        # Ensure url is a string and pass it to QUrl
-        if isinstance(url, bool):
+        if not isinstance(url, str):  # Ensure the URL is a string
             url = "https://custom-new-tab-page-12935782.codehs.me/"
-        print(f"URL passed to add_tab: {url}")  # Debugging line
         browser = QWebEngineView()
         custom_page = CustomWebEnginePage(browser, self.popup_blocking_enabled, self.adblocking_enabled)
         browser.setPage(custom_page)
-        browser.setUrl(QUrl(url))  # Make sure url is a string, not a boolean
+        browser.setUrl(QUrl(url))  # Set the correct URL
         index = self.tabs.addTab(browser, "New Tab")
         self.tabs.setCurrentWidget(browser)
         browser.urlChanged.connect(lambda url: self.update_tab_title(index, url))
+
 
     def update_tab_title(self, index, url):
         """Update the tab title based on the current URL."""
