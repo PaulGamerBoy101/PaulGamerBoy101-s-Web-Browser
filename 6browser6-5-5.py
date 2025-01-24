@@ -180,7 +180,7 @@ class Browser(QMainWindow):
         """Add a new tab."""
         # Ensure url is a string and pass it to QUrl
         if isinstance(url, bool):
-            url = "about:blank"
+            url = "https://custom-new-tab-page-12935782.codehs.me/"
         print(f"URL passed to add_tab: {url}")  # Debugging line
         browser = QWebEngineView()
         custom_page = CustomWebEnginePage(browser, self.popup_blocking_enabled, self.adblocking_enabled)
