@@ -1,6 +1,6 @@
 import sys
 from PyQt5.QtWidgets import (
-    QApplication, QMainWindow, QMessageBox, QVBoxLayout,
+    QApplication, QMainWindow, QVBoxLayout,
     QHBoxLayout, QWidget, QPushButton, QLineEdit, QTabWidget,
     QMenuBar, QAction, QLabel
 )
@@ -8,41 +8,19 @@ from PyQt5.QtWebEngineWidgets import QWebEngineView, QWebEnginePage
 from PyQt5.QtCore import QUrl, Qt
 
 
-class AdBlocker:
-    def __init__(self):
-        self.blocked_domains = [
-            "ads.example.com",
-            "ads1.example.net",
-            "doubleclick.net",
-            "googlesyndication.com",
-            "pagead2.googlesyndication.com",
-            "adservice.google.com",
-            "amazon-adsystem.com"
-        ]
-
-    def is_ad(self, url):
-        for domain in self.blocked_domains:
-            if domain in url:
-                return True
-        return False
-
-
 class CustomWebEnginePage(QWebEnginePage):
-    def __init__(self, parent=None, popup_blocking_enabled=True, adblocking_enabled=True):
+    def __init__(self, parent=None):
         super().__init__(parent)
-        self.popup_blocking_enabled = popup_blocking_enabled
-        self.adblocking_enabled = adblocking_enabled
-        self.ad_blocker = AdBlocker()
-        self.trusted_domains = []  # Domains always allowed
-        self.blocked_domains = []  # Domains always blocked
-
 
     def acceptNavigationRequest(self, url, type, is_main_frame):
-        """Block ads and manage trusted/blocked domains."""
-        domain = url.host()
-        if self.adblocking_enabled and self.ad_blocker.is_ad(url.toString()):
-            return False
-        if domain in self.blocked_domains:
+        """
+        Handle navigation requests, including clicks and new tabs.
+        """
+        if type == QWebEnginePage.NavigationTypeLinkClicked:
+            if is_main_frame:
+                self.view().setUrl(url)
+            else:
+                self.view().parent().add_tab(url.toString())
             return False
         return super().acceptNavigationRequest(url, type, is_main_frame)
 
@@ -52,10 +30,6 @@ class Browser(QMainWindow):
         super().__init__()
         self.setWindowTitle("PaulGamerBoy101's Web Browser")
         self.resize(1200, 800)
-
-        # Popup blocker and adblocker state
-        self.popup_blocking_enabled = True
-        self.adblocking_enabled = True
 
         # Main layout
         self.main_widget = QWidget()
@@ -110,20 +84,6 @@ class Browser(QMainWindow):
         self.menu_bar = QMenuBar(self)
         self.setMenuBar(self.menu_bar)
 
-        # Popup Blocker Menu
-        popup_blocker_menu = self.menu_bar.addMenu("Popup Blocker")
-        toggle_popup_blocker_action = QAction("Enable Popup Blocking", self, checkable=True)
-        toggle_popup_blocker_action.setChecked(True)
-        toggle_popup_blocker_action.triggered.connect(self.toggle_popup_blocker)
-        popup_blocker_menu.addAction(toggle_popup_blocker_action)
-
-        # Adblocker Menu
-        adblocker_menu = self.menu_bar.addMenu("Adblocker")
-        toggle_adblocker_action = QAction("Enable Adblocker", self, checkable=True)
-        toggle_adblocker_action.setChecked(True)
-        toggle_adblocker_action.triggered.connect(self.toggle_adblocker)
-        adblocker_menu.addAction(toggle_adblocker_action)
-
         # New Tab Button
         self.new_tab_button = QPushButton("+")
         self.new_tab_button.clicked.connect(self.add_tab)
@@ -132,24 +92,20 @@ class Browser(QMainWindow):
         # Add initial tab
         self.add_tab()
 
-    def toggle_popup_blocker(self, state):
-        self.popup_blocking_enabled = state
-
-    def toggle_adblocker(self, state):
-        self.adblocking_enabled = state
-
     def add_tab(self, url="https://custom-new-tab-page-12935782.codehs.me/"):
         browser = QWebEngineView()
-        custom_page = CustomWebEnginePage(browser, self.popup_blocking_enabled, self.adblocking_enabled)
+        custom_page = CustomWebEnginePage(browser)
         browser.setPage(custom_page)
-        browser.setUrl(QUrl(url))
-        browser.urlChanged.connect(lambda url: self.update_hover_url(url))
+        browser.setUrl(QUrl.fromUserInput(url))
+        browser.urlChanged.connect(lambda url: self.update_url_bar(url))
         index = self.tabs.addTab(browser, "New Tab")
         self.tabs.setCurrentWidget(browser)
 
     def close_tab(self, index):
         if self.tabs.count() > 1:
             self.tabs.removeTab(index)
+        else:
+            self.close()
 
     def navigate_to_url(self):
         current_tab = self.tabs.currentWidget()
@@ -157,7 +113,7 @@ class Browser(QMainWindow):
             url = self.url_bar.text()
             if not url.startswith("http://") and not url.startswith("https://"):
                 url = "https://" + url
-            current_tab.setUrl(QUrl(url))
+            current_tab.setUrl(QUrl.fromUserInput(url))
 
     def navigate_back(self):
         current_tab = self.tabs.currentWidget()
@@ -179,7 +135,8 @@ class Browser(QMainWindow):
         if current_tab:
             current_tab.setUrl(QUrl("https://custom-new-tab-page-12935782.codehs.me/"))
 
-    def update_hover_url(self, url):
+    def update_url_bar(self, url):
+        self.url_bar.setText(url.toString())
         self.hover_url_label.setText(url.toString())
 
 
@@ -187,4 +144,4 @@ if __name__ == "__main__":
     app = QApplication(sys.argv)
     browser = Browser()
     browser.show()
-    sys.exit(app.exec())
+    sys.exit(app.exec_())
